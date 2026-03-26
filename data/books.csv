@@ -1,0 +1,4 @@
+book_id,title,author,genre,available
+B101,Python Basics,John Doe,Programming,Yes
+B102,Data Science 101,Jane Smith,Data Science,Yes
+B103,Machine Learning,Andrew Ng,AI,Yes
