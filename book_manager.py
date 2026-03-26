@@ -1,25 +1,44 @@
 from storage import read_data, write_data
+import pandas as pd
+import os
 
 BOOK_FILE = "data/books.csv"
 
-def add_book(book_id, title, author, genre):
-    df = read_data(BOOK_FILE)
+def generate_book_id():
+    if not os.path.exists(BOOKS_FILE):
+        return "B001"
 
-    if not df.empty and book_id in df['book_id'].values:
-        return "Book already exists"
+    df = pd.read_csv(BOOKS_FILE)
 
-    new = {
-        "book_id": book_id,
-        "title": title,
-        "author": author,
-        "genre": genre,
-        "available": "Yes"
-    }
+    if df.empty:
+        return "B001"
 
-    df = df._append(new, ignore_index=True)
-    write_data(BOOK_FILE, df)
+    # Extract numeric part and find max
+    df["num"] = df["Book ID"].str.replace("B", "").astype(int)
+    next_id = df["num"].max() + 1
 
-    return "Book added successfully"
+    return f"B{str(next_id).zfill(3)}"
 
+
+def add_book(title, author, genre):
+    book_id = generate_book_id()
+
+    new_book = pd.DataFrame([{
+        "Book ID": book_id,
+        "Title": title,
+        "Author": author,
+        "Genre": genre,
+        "Availability": "Available"
+    }])
+
+    if os.path.exists(BOOKS_FILE):
+        df = pd.read_csv(BOOKS_FILE)
+        df = pd.concat([df, new_book], ignore_index=True)
+    else:
+        df = new_book
+
+    df.to_csv(BOOKS_FILE, index=False)
+
+    return f"✅ Book added successfully with ID: {book_id}"
 def get_books():
     return read_data(BOOK_FILE)
